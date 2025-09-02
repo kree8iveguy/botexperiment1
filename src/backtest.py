@@ -1,24 +1,34 @@
+import pandas as pd
 from src.data_feed import fetch_ohlcv
-from src.feature_engineering import add_features
-from src.core_trend import trend_signal
-from src.risk_management import position_size
-from src.config import load_config
+from src.feature_engineering import add_indicators
+from src.core_trend import generate_signal
+from src.risk_management import apply_risk
+from src.config import CONFIG
 
 def backtest():
-    config = load_config()
-    df = fetch_ohlcv(limit=1000)
-    df = add_features(df)
-    balance = config["trading"]["initial_balance"]
+    df = fetch_ohlcv(limit=500)
+    df = add_indicators(df)
 
-    for i in range(51, len(df)):
-        sub_df = df.iloc[:i]
-        signal = trend_signal(sub_df)
-        if signal in ["buy","sell"]:
-            size = position_size(balance,
-                                 config["trading"]["risk_per_trade"],
-                                 config["trading"]["stop_loss_pct"])
-            # Dummy execution
-            balance += size * sub_df["return"].iloc[-1]
+    balance = CONFIG["trading"]["starting_balance"]
+    position = None
+
+    for i in range(len(df)):
+        row = df.iloc[: i + 1]
+        if len(row) < 30:
+            continue
+
+        signal = generate_signal(row)
+        price = row["close"].iloc[-1]
+
+        if signal == "buy" and not position:
+            trade = apply_risk("buy", balance, price)
+            position = trade
+            print(f"BUY at {price:.2f}, size {trade['size']:.4f}")
+        elif signal == "sell" and position:
+            pnl = (price - position["stop_loss"]) * position["size"]
+            balance += pnl
+            print(f"SELL at {price:.2f}, balance {balance:.2f}")
+            position = None
 
     print(f"Final balance: {balance:.2f}")
 
