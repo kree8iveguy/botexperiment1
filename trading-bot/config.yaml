@@ -1,0 +1,6 @@
+mode: backtest  # options: backtest, paper, live
+symbol: BTCUSDT
+interval: 1h
+risk:
+  stop_loss: 0.02
+  take_profit: 0.04
