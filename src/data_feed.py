@@ -1,20 +1,13 @@
 import ccxt
 import pandas as pd
-from src.config import load_config, API_KEY, API_SECRET
+from src.config import CONFIG
 
-config = load_config()
+def fetch_ohlcv(exchange_name="binance", pair=None, timeframe=None, limit=500):
+    pair = pair or CONFIG["trading"]["pair"]
+    timeframe = timeframe or CONFIG["trading"]["timeframe"]
 
-def get_exchange():
-    return ccxt.binance({
-        "apiKey": API_KEY,
-        "secret": API_SECRET
-    })
-
-def fetch_ohlcv(symbol=None, timeframe=None, limit=500):
-    exchange = get_exchange()
-    symbol = symbol or config["trading"]["symbol"]
-    timeframe = timeframe or config["trading"]["timeframe"]
-    ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=limit)
-    df = pd.DataFrame(ohlcv, columns=["timestamp","open","high","low","close","volume"])
+    exchange = getattr(ccxt, exchange_name)()
+    ohlcv = exchange.fetch_ohlcv(pair, timeframe=timeframe, limit=limit)
+    df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
     df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
     return df
