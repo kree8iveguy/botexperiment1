@@ -1,11 +1,7 @@
 trading:
-  symbol: "BTC/USDT"
+  pair: "BTC/USDT"
   timeframe: "1h"
-  initial_balance: 1000
-  risk_per_trade: 0.01
-  stop_loss_pct: 0.02
-  take_profit_pct: 0.05
-
-ml:
-  model_type: "random_forest"
-  train_window: 500
+  starting_balance: 10000
+  risk_per_trade: 0.02
+  stop_loss_pct: 0.03
+  take_profit_pct: 0.06
