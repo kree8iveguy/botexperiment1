@@ -1,12 +1,8 @@
 import yaml
-from dotenv import load_dotenv
-import os
+from pathlib import Path
 
-load_dotenv()
-
-def load_config():
-    with open("config.yaml", "r") as f:
+def load_config(path="config.yaml"):
+    with open(Path(path), "r") as f:
         return yaml.safe_load(f)
 
-API_KEY = os.getenv("API_KEY")
-API_SECRET = os.getenv("API_SECRET")
+CONFIG = load_config()
